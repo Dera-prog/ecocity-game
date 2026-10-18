@@ -1,0 +1,16 @@
+{
+  "leaderboard": {
+    "stats": [
+      {
+        "key": "litter",
+        "label": "Litter collected",
+        "order": "highest"
+      },
+      {
+        "key": "floods",
+        "label": "Floods prevented",
+        "order": "highest"
+      }
+    ]
+  }
+}

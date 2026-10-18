@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<title>EcoCity — clean the street, sort the waste, get rewarded</title>
+<meta name="description" content="EcoCity is the playable prototype of EcoCycle Hub: a realistic 3D recycling game where you clean up a Nigerian neighbourhood, sort waste, and earn rewards for verified recycling." />
+<link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml" />
+
+
+<link rel="stylesheet" href="css/fonts.css" />
+<link rel="stylesheet" href="css/game.css" />
+<script type="importmap">
+{ "imports": { "three": "./vendor/three.module.js" } }
+</script>
+</head>
+<body class="no-touch-select">
+
+<div id="scene-wrap" aria-hidden="true"></div>
+
+<!-- start.ng player chip — who is playing (hidden until start.ng answers) -->
+<div id="sn-chip" class="sn-chip hidden">
+  <img id="sn-face" alt="" hidden />
+  <div class="sn-id"><b id="sn-name"></b><span id="sn-account"></span></div>
+  <button id="sn-signin" class="sn-signin hidden">Sign in with start.ng</button>
+</div>
+
+<!-- ============ LOADING ============ -->
+<div id="loading" class="screen visible">
+  <div class="load-box">
+    <div class="load-logo"><span class="recycle-mark">♻</span> EcoCycle Hub</div>
+    <h1 class="load-title">EcoCity</h1>
+    <p class="load-sub">Loading the neighbourhood…</p>
+    <div class="load-track"><div id="load-bar"></div></div>
+    <p id="load-msg" class="load-msg">Preparing EcoHeroes</p>
+  </div>
+</div>
+
+<!-- ============ MAIN MENU ============ -->
+<div id="menu" class="screen">
+  <div class="menu-inner">
+    <div class="menu-brand"><span class="recycle-mark">♻</span> EcoCycle Hub</div>
+    <h1 class="menu-title">Eco<span>City</span></h1>
+    <p class="menu-tagline">Clean the street. Sort the waste. Get rewarded.</p>
+    <div class="menu-actions">
+      <button id="btn-continue" class="btn btn-primary hidden">Continue</button>
+      <button id="btn-new" class="btn btn-secondary">New game</button>
+      <button id="btn-howto" class="btn btn-ghost">How to play</button>
+    </div>
+    <p class="menu-note">Playable prototype of the <b>EcoCycle Hub</b> PRD — pickups, weights and ₦ payouts are simulated.</p>
+  </div>
+</div>
+
+<!-- ============ HOW TO PLAY ============ -->
+<div id="howto" class="screen">
+  <div class="sheet">
+    <h2>How to play</h2>
+    <ol class="howto-list">
+      <li><b>Walk the streets.</b> Click or tap the ground to walk there, or use <kbd>W A S D</kbd> (or the joystick on touch) — or click your character to have them walk around on their own. Pick up waste by clicking it — your EcoHero walks over and collects it — or use <kbd>E</kbd> / the <b>Collect</b> button when close.</li>
+      <li><b>Take it to the Recycling Hub</b> and run the sorting mini-game — learn which bin each material belongs in.</li>
+      <li><b>Staged smart bags</b> wait at your EcoHome. Press <b>Request pickup</b> in the Rewards panel and a partner truck will come and verify your recyclables.</li>
+      <li><b>Earn score, coins, XP, ₦ rewards and badges.</b> Upgrade your bag, shoes and gloves in the shop.</li>
+      <li><b>Talk to the street.</b> Mama Ngozi, DJ Ada, Auntie Bisi and Chidi have their own plans, moods and memories of your visit. Walk up and press <kbd>E</kbd> — or click them — for a live conversation.</li>
+      <li><b>Watch the drain-risk meter.</b> If too much litter clogs the gutters, heavy rain can flood the street — clean up to stop it.</li>
+    </ol>
+    <button id="btn-howto-close" class="btn btn-primary">Got it</button>
+  </div>
+</div>
+
+<!-- ============ CHARACTER CREATOR ============ -->
+<div id="creator" class="screen">
+  <div class="creator-panel">
+    <p class="eyebrow">Create your EcoHero</p>
+    <h2>Who will clean up<br/>this neighbourhood?</h2>
+    <label class="field-label" for="hero-name">Name your EcoHero</label>
+    <input id="hero-name" class="text-input" type="text" maxlength="16" value="Amara" autocomplete="off" spellcheck="false" />
+    <label class="field-label">Choose a look</label>
+    <div id="char-options" class="char-options"></div>
+    <label class="field-label">Body type</label>
+    <div id="body-options" class="body-options"></div>
+    <p id="body-note" class="body-note"></p>
+    <button id="btn-look-edit" class="btn btn-ghost btn-wide">✏️ Edit outfit &amp; look</button>
+    <label class="field-label">Cap colour</label>
+    <div id="cap-swatches" class="swatches"></div>
+    <button id="btn-create-start" class="btn btn-primary btn-wide">Start cleaning up</button>
+    <p class="creator-note">Pick a look, body type and name — then edit outfit, shoes, skin tone, hair and glasses for free. The same wardrobe re-opens in-game from level 5.</p>
+  </div>
+  <div class="creator-hint">Body type, name and look update live — your EcoHero turns on the spot beside the options</div>
+</div>
+
+<!-- ============ HUD ============ -->
+<div id="hud" class="hidden">
+  <div class="hud-top-left">
+    <div class="chip chip-level" id="hud-level-wrap"><span id="hud-level">1</span><small>EcoHero</small></div>
+    <div class="hud-stack">
+      <div class="xp-track"><div id="hud-xp-fill"></div></div>
+      <div class="hud-small"><span id="hud-xp-label">0 / 100 XP</span></div>
+    </div>
+    <div class="chip chip-score" title="Score — every piece of waste you pick up adds points"><span class="score-star">★</span><span id="hud-score">0</span></div>
+    <div class="chip chip-coins"><span class="coin-dot"></span><span id="hud-coins">0</span></div>
+    <div class="chip chip-naira"><span id="hud-naira">₦0</span></div>
+  </div>
+
+  <div class="hud-top-center">
+    <div id="objective" class="objective hidden"></div>
+    <div id="storm-banner" class="storm hidden"></div>
+  </div>
+
+  <div class="hud-top-right">
+    <div class="meter-card">
+      <div class="meter-row"><span class="meter-label">Drain risk</span><span id="risk-pct" class="meter-val">0%</span></div>
+      <div class="risk-track"><div id="risk-fill"></div></div>
+      <div class="meter-row"><span class="meter-label">Neighbourhood</span><span id="clean-pct" class="meter-val">Clean</span></div>
+    </div>
+    <div class="hud-buttons">
+      <button id="btn-missions" class="hud-btn" title="Missions"><span class="hud-btn-badge hidden" id="missions-badge">!</span>🎯<span class="hud-btn-label">Missions</span></button>
+      <button id="btn-wallet" class="hud-btn" title="Rewards">💰<span class="hud-btn-label">Rewards</span></button>
+      <button id="btn-badges" class="hud-btn" title="Badges">🏅<span class="hud-btn-label">Badges</span></button>
+      <button id="btn-shop" class="hud-btn" title="Shop">🛒<span class="hud-btn-label">Shop</span></button>
+      <button id="btn-wardrobe" class="hud-btn locked" title="Wardrobe (level 5)">👕<span class="hud-btn-label">Wardrobe</span></button>
+      <button id="btn-garage" class="hud-btn locked" title="Fleet garage (level 4)">🚛<span class="hud-btn-label">Garage</span></button>
+      <button id="btn-mute" class="hud-btn" title="Sound"><span id="mute-icon">🔊</span><span class="hud-btn-label" id="mute-label">Sound</span></button>
+      <button id="btn-menu" class="hud-btn" title="Menu">☰<span class="hud-btn-label">Menu</span></button>
+    </div>
+  </div>
+
+  <div id="mission-panel" class="mission-panel hidden">
+    <h3>Today’s missions</h3>
+    <div id="mission-list"></div>
+  </div>
+
+  <div class="hud-bottom-left">
+    <div class="minimap-card">
+      <canvas id="minimap" width="176" height="176"></canvas>
+      <div class="minimap-label">Oshodi Green Estate</div>
+    </div>
+    <div class="bag-chip"><span id="bag-label">Bag 0/12</span></div>
+  </div>
+
+  <div class="hud-bottom-right">
+    <div id="prompt" class="prompt hidden"></div>
+    <button id="action-btn" class="action-btn hidden">Collect</button>
+    <button id="run-btn" class="run-btn" title="Hold to run">🏃<span class="run-btn-label">Run</span></button>
+  </div>
+
+  <div id="joystick" class="joystick hidden"><div id="joy-knob" class="joy-knob"></div></div>
+
+  <div id="toasts" class="toasts" aria-live="polite"></div>
+</div>
+
+<!-- ============ LIVE NPC CONVERSATION ============ -->
+<div id="chat-root" class="chat-root" aria-hidden="true">
+  <div id="chat-scrim" class="chat-scrim"></div>
+  <section class="chat-panel" role="dialog" aria-modal="true" aria-labelledby="chat-name" aria-describedby="chat-note">
+    <header class="chat-head">
+      <div id="chat-face" class="chat-face" aria-hidden="true">MN</div>
+      <div class="chat-who">
+        <h2 id="chat-name">Mama Ngozi</h2>
+        <p id="chat-role">Market vendor · Stall 4</p>
+      </div>
+      <span id="chat-live" class="chat-live"><i></i>Live</span>
+      <button id="chat-close" class="chat-close" type="button" aria-label="Close conversation">✕</button>
+    </header>
+    <p id="chat-tag" class="chat-tag">Fresh greens, clean gutters, no nylon.</p>
+    <div id="chat-body" class="chat-body">
+      <div id="chat-log" class="chat-log" aria-live="polite"></div>
+    </div>
+    <div id="chat-suggest" class="chat-suggest"></div>
+    <form id="chat-form" class="chat-form" autocomplete="off">
+      <input id="chat-input" class="chat-input" type="text" maxlength="500" placeholder="Say something…" aria-label="Message" />
+      <button id="chat-send" class="chat-send" type="submit">Send</button>
+    </form>
+    <p id="chat-note" class="chat-note">Live AI character · replies stream in · this conversation lasts for your visit</p>
+  </section>
+</div>
+
+<div id="modal-root" aria-live="polite"></div>
+<div id="lightning"></div>
+<div id="fade" class="fade"></div>
+
+<noscript><p style="padding:2rem;font-family:sans-serif">EcoCity needs JavaScript and WebGL to run.</p></noscript>
+
+<script type="module" src="js/game/main.js"></script>
+</body>
+</html>
