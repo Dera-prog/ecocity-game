@@ -6,8 +6,8 @@ import { clone as cloneSkinned } from '../../vendor/utils/SkeletonUtils.js';
 import { LOOK_OPTIONS, defaultLook } from './state.js';
 
 const MODELS = {
-  michelle: 'assets/models/Michelle.glb',
-  soldier: 'assets/models/Soldier.glb'
+  michelle: 'assets/models/michelle.gltf.json',
+  soldier: 'assets/models/soldier.gltf.json'
 };
 
 /* Body shapes: bone-scale archetypes shared by both Mixamo rigs. The neck
@@ -43,7 +43,7 @@ let assets = null;
 export async function loadCharacterAssets(onProgress) {
   const loader = new GLTFLoader();
   const loaded = {};
-  const sizes = { michelle: 3276888, soldier: 2160468 }; // known bytes, for progress only
+  const sizes = { michelle: 5291937, soldier: 3646735 }; // known bytes, for progress only
   const total = Object.values(sizes).reduce((a, b) => a + b, 0);
   let got = 0;
 
